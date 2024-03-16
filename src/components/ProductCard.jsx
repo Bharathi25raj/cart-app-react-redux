@@ -1,28 +1,37 @@
-import { useEffect, useState } from "react"
-import { useDispatch } from 'react-redux'
-import axios from 'axios';
+import { useEffect } from "react"
+import { useDispatch, useSelector } from 'react-redux'
 import { addToCart } from "../Store/cartSlice";
+import { fetchProducts } from "../Store/productSlice";
 
 
 export default function ProductCard(){
 
     const dispatch = useDispatch();
-    const [products, setProducts] = useState([]);
+    
+    const { data, status } = useSelector((state) => state.product);
 
     useEffect(() => {
-        axios.get('https://fakestoreapi.com/products').then((res) => {
-            setProducts(res.data);
-        })
-    })
+        dispatch(fetchProducts());
+    }, [])
 
     function handleAddToCart(product) {
         dispatch(addToCart(product));
     }
 
+    if(status == 'loading'){
+        return (
+            <h3>...Loading</h3>
+        )
+    } else if (status == 'error'){
+        return (
+            <h3>Oops, Something went wrong!</h3>
+        )
+    }
+
     return (
         <div className="products">
             {
-                products.map((product) => {
+                data.map((product) => {
                     return (
                         <div key={product.id} className="productCard">
                             <img className="productImage" src={product.image} alt="product_image"/>
